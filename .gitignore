@@ -9,6 +9,7 @@ package-lock.json
 /releases
 .idea
 /.vscode
+/.claude
 electron-builder.yml
 .DS_Store
 yarn.lock
