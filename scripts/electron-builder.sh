@@ -1,7 +1,7 @@
 #!/bin/bash
 
 __dirname="$(CDPATH= cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-electron_version=$(electron --version)
+electron_version="v$(node -p "require('./package.json').devDependencies.electron.replace(/[\^~]/,'')")"
 
 display_usage() {
     yarn electron-builder -- --help

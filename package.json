@@ -416,7 +416,7 @@
     "css-split-webpack-plugin": "~0.2.6",
     "cypress": "^13.4.0",
     "dotenv": "~7.0.0",
-    "electron": "^33.2.0",
+    "electron": "^33.4.11",
     "electron-builder": "~23.6.0",
     "eslint": "~5.16.0",
     "eslint-config-trendmicro": "~1.4.1",
@@ -484,10 +484,7 @@
     "@react-pdf/stylesheet": "4.1.8",
     "@react-pdf/textkit": "4.2.0",
     "@react-pdf/types": "2.3.4",
-    "@react-pdf/yoga": "4.1.2",
-    "webpack@4.47.0": {
-      "terser-webpack-plugin": "^4.2.3"
-    }
+    "@react-pdf/yoga": "4.1.2"
   },
   "packageManager": "yarn@1.22.22"
 }
