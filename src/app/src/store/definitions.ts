@@ -15,6 +15,7 @@ import { Probe } from 'app/features/Probe/definitions';
 import { Rotary } from 'app/features/Rotary/definitions';
 import { Spindle, SpindleState } from 'app/features/Spindle/definitions';
 import { Surfacing } from 'app/features/Surfacing/definitions';
+import { HeightMapState } from 'app/features/HeightMap/definitions';
 import {
     VISUALIZER_TYPES_T,
     Visualizer,
@@ -219,6 +220,7 @@ export interface State {
         rotary: Rotary;
         spindle: SpindleState;
         surfacing: Surfacing;
+        heightMap: HeightMapState;
         visualizer: Visualizer;
     };
     commandKeys: CommandKeys;
