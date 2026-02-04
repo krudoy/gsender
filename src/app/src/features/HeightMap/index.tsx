@@ -38,7 +38,7 @@ import Tooltip from 'app/components/Tooltip';
 import { convertToImperial, convertToMetric } from 'app/lib/units';
 import WidgetConfig from '../WidgetConfig/WidgetConfig';
 import defaultState from 'app/store/defaultState';
-import { uploadGcodeFileToServer } from 'app/lib/fileUpload';
+import { uploadGcodeFileToServer } from 'app/lib/fileupload';
 
 import {
     HeightMapState,
