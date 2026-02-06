@@ -3,6 +3,7 @@ npm-debug.log
 package-lock.json
 /.eslintcache
 /.nyc_output
+/.docs
 /coverage
 /dist
 /output*/
