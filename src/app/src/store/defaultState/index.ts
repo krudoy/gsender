@@ -79,6 +79,11 @@ const defaultState: State = {
             preHook: '',
             postHook: '',
         },
+        commentDisplay: {
+            showParenthesesComments: true,
+            showToolpathComments: true,
+            showCurrentOperation: true,
+        },
         container: {
             primary: {
                 show: true,

@@ -120,6 +120,11 @@ export interface HelperState {
     metadata: object;
 }
 
+export interface ToolpathComment {
+    lineNumber: number;
+    name: string;
+}
+
 export interface FileInfoState {
     fileLoaded: boolean;
     fileProcessing: boolean;
@@ -138,6 +143,8 @@ export interface FileInfoState {
     content: string;
     fileType: FILE_TYPE_T;
     usedAxes: Array<string>;
+    toolpathComments: Array<ToolpathComment>;
+    currentToolpath: string | null;
 }
 
 export interface PreferencesState {

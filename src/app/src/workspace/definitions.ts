@@ -19,6 +19,12 @@ export type Notification = {
     timestamp: Date | string;
 };
 
+export interface CommentDisplay {
+    showParenthesesComments: boolean;
+    showToolpathComments: boolean;
+    showCurrentOperation: boolean;
+}
+
 // Interfaces
 
 export interface Workspace {
@@ -87,4 +93,5 @@ export interface Workspace {
     notifications: Notification[];
     toastDuration: number;
     enableDarkMode: boolean;
+    commentDisplay: CommentDisplay;
 }

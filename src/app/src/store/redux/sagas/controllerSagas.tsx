@@ -102,10 +102,13 @@ import { updateWorkspaceMode } from 'app/lib/rotary';
 import api from 'app/api';
 import {
     unloadFileInfo,
+    updateCurrentToolpath,
     updateFileContent,
+    updateFileInfo,
     updateFileProcessing,
     updateFileRenderState,
 } from '../slices/fileInfo.slice';
+import { ToolpathComment } from '../../definitions';
 import { getEstimateData } from 'app/lib/indexedDB';
 import { setIpList } from '../slices/preferences.slice';
 import { updateJobOverrides } from '../slices/visualizer.slice';
@@ -289,6 +292,26 @@ export function* initialize(): Generator<any, void, any> {
 
         // Basic file content
         reduxStore.dispatch(updateFileContent({ content, size, name }));
+
+        // Extract toolpath comments from the file content
+        const toolpathMatcher = /\(Toolpath:\s*([^)]+)\)/i;
+        const lines = content.split('\n');
+        const toolpathComments: ToolpathComment[] = [];
+        lines.forEach((line, index) => {
+            const match = line.match(toolpathMatcher);
+            if (match) {
+                toolpathComments.push({
+                    lineNumber: index + 1, // 1-based line numbers
+                    name: match[1].trim(),
+                });
+            }
+        });
+        if (toolpathComments.length > 0) {
+            reduxStore.dispatch(
+                updateFileInfo({ toolpathComments, currentToolpath: null }),
+            );
+        }
+
         // sending gcode data to the visualizer
         // so it can save it and give it to the normal or svg visualizer
 
@@ -416,6 +439,32 @@ export function* initialize(): Generator<any, void, any> {
         }
 
         reduxStore.dispatch(updateSenderStatus({ status }));
+
+        // Update current toolpath based on sent line number
+        const currentLine = status.sent || 0;
+        const fileState = _get(reduxStore.getState(), 'file');
+        const toolpathComments: ToolpathComment[] =
+            fileState?.toolpathComments || [];
+        if (toolpathComments.length > 0 && currentLine > 0) {
+            // Find the toolpath that applies to the current line
+            // (the toolpath whose line number is <= currentLine)
+            let currentToolpathName: string | null = null;
+            for (const tc of toolpathComments) {
+                if (tc.lineNumber <= currentLine) {
+                    currentToolpathName = tc.name;
+                } else {
+                    break; // toolpathComments are sorted by line number
+                }
+            }
+            // Only dispatch if the toolpath has changed
+            if (currentToolpathName !== fileState?.currentToolpath) {
+                reduxStore.dispatch(
+                    updateCurrentToolpath({
+                        currentToolpath: currentToolpathName,
+                    }),
+                );
+            }
+        }
     });
 
     controller.addListener('workflow:state', (state: WORKFLOW_STATES_T) => {

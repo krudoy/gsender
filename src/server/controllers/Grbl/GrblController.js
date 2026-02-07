@@ -260,10 +260,21 @@ class GrblController {
         // Feeder
         this.feeder = new Feeder({
             dataFilter: (line, context) => {
+                // Extract parentheses comments BEFORE any processing
+                const parenCommentMatcher = /\(([^)]*)\)/g;
+                const parenMatches = line.match(parenCommentMatcher);
+                const parenCommentString = parenMatches
+                    ? parenMatches.map(m => m.slice(1, -1)).join(' ').trim()
+                    : '';
+
                 let commentMatcher = /\s*;.*/g;
                 let comment = line.match(commentMatcher);
-                const commentString = (comment && comment[0].length > 0) ? comment[0].trim()
+                const semicolonCommentString = (comment && comment[0].length > 0) ? comment[0].trim()
                     .replace(';', '') : '';
+
+                // Use parentheses comment if available, otherwise use semicolon comment
+                const commentString = parenCommentString || semicolonCommentString;
+
                 line = line.replace(commentMatcher, '')
                     .trim();
                 context = this.populateContext(context);
@@ -414,13 +425,24 @@ class GrblController {
             // Deduct the buffer size to prevent from buffer overrun
             bufferSize: (128 - 28), // The default buffer size is 128 bytes
             dataFilter: (line, context) => {
+                // Extract parentheses comments BEFORE stripping them
+                const parenCommentMatcher = /\(([^)]*)\)/g;
+                const parenMatches = line.match(parenCommentMatcher);
+                const parenCommentString = parenMatches
+                    ? parenMatches.map(m => m.slice(1, -1)).join(' ').trim()
+                    : '';
+
                 // Remove comments that start with a semicolon `;`
                 let commentMatcher = /\s*;.*/g;
                 let bracketCommentLine = /\s*\(.*\)*\)/gm;
                 let toolCommand = /(T)(-?\d*\.?\d+\.?)/;
                 line = line.replace(bracketCommentLine, '').trim();
                 let comment = line.match(commentMatcher);
-                let commentString = (comment && comment[0].length > 0) ? comment[0].trim().replace(';', '') : '';
+                let semicolonCommentString = (comment && comment[0].length > 0) ? comment[0].trim().replace(';', '') : '';
+
+                // Use parentheses comment if available, otherwise use semicolon comment
+                let commentString = parenCommentString || semicolonCommentString;
+
                 line = line.replace(commentMatcher, '').trim();
                 context = this.populateContext(context);
 
@@ -484,11 +506,29 @@ class GrblController {
 
                     let tool = line.match(toolCommand);
 
+                    // Look for Toolpath comment in preceding lines (Vectric/Carbide format)
+                    let toolpathName = '';
+                    const lines = this.sender.state.lines || [];
+                    const toolpathMatcher = /\(Toolpath:\s*([^)]+)\)/i;
+                    // Search up to 5 preceding lines for a Toolpath comment
+                    for (let i = sent - 1; i >= Math.max(0, sent - 5); i--) {
+                        const prevLine = lines[i] || '';
+                        const toolpathMatch = prevLine.match(toolpathMatcher);
+                        if (toolpathMatch) {
+                            toolpathName = toolpathMatch[1].trim();
+                            break;
+                        }
+                    }
+
                     // Handle specific cases for macro and pause, ignore is default and comments line out with no other action
                     // If toolchange is at very beginning of file, ignore it
                     if (toolChangeOption !== 'Ignore') {
                         if (tool) {
                             commentString = `(${tool?.[0]}) ` + commentString;
+                        }
+                        // Add toolpath name to comment if found
+                        if (toolpathName && !commentString.includes(toolpathName)) {
+                            commentString = toolpathName + (commentString ? ' - ' + commentString : '');
                         }
                         this.workflow.pause({ data: 'M6', comment: commentString });
 
@@ -507,7 +547,8 @@ class GrblController {
                                     count,
                                     block: line,
                                     tool: tool,
-                                    option: toolChangeOption
+                                    option: toolChangeOption,
+                                    toolpathName: toolpathName
                                 }, commentString);
                             }, 500);
                         }

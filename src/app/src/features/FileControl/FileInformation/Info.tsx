@@ -1,10 +1,24 @@
 import { useTypedSelector } from 'app/hooks/useTypedSelector';
 import { useWorkspaceState } from 'app/hooks/useWorkspaceState';
+import store from 'app/store';
 
 const Info = () => {
-    const { toolSet, movementSet, spindleSet, estimatedTime, fileModal } =
-        useTypedSelector((state) => state.file);
+    const {
+        toolSet,
+        movementSet,
+        spindleSet,
+        estimatedTime,
+        fileModal,
+        currentToolpath,
+        toolpathComments,
+    } = useTypedSelector((state) => state.file);
     const { units } = useWorkspaceState();
+
+    // Get showCurrentOperation setting
+    const showCurrentOperation = store.get(
+        'workspace.commentDisplay.showCurrentOperation',
+        true,
+    );
 
     const toolSetFormatted = toolSet.map((tool) => tool.replace('T', ''));
     const movementSetFormatted = movementSet
@@ -68,8 +82,22 @@ const Info = () => {
             ? `${formatNumber(feedrateMin)} ${units === 'mm' ? 'mm/min' : 'in/min'}`
             : `${formatNumber(feedrateMin)}-${formatNumber(feedrateMax)} ${units === 'mm' ? 'mm/min' : 'in/min'}`;
 
+    // Determine if we should show the current operation display
+    const hasToolpathComments = toolpathComments && toolpathComments.length > 0;
+    const shouldShowOperation =
+        showCurrentOperation && hasToolpathComments && currentToolpath;
+
     return (
         <div className="text-gray-900 dark:text-gray-300">
+            {shouldShowOperation && (
+                <div className="flex gap-1">
+                    <span className="font-bold">Operation</span>
+                    <span className="truncate max-w-[180px]" title={currentToolpath}>
+                        {currentToolpath}
+                    </span>
+                </div>
+            )}
+
             <div className="flex gap-1">
                 <span className="font-bold">Estimated Time</span>
                 <span>{formattedEstimatedTime}</span>

@@ -26,6 +26,8 @@ const initialState: FileInfoState = {
     content: '',
     fileType: null,
     usedAxes: [],
+    toolpathComments: [],
+    currentToolpath: null,
 };
 
 const normalizeBBox = (bbox: Partial<BBox>): BBox => {
@@ -88,6 +90,12 @@ const fileInfoSlice = createSlice({
         ) => {
             state.renderState = action.payload.renderState;
         },
+        updateCurrentToolpath: (
+            state,
+            action: PayloadAction<{ currentToolpath: string | null }>,
+        ) => {
+            state.currentToolpath = action.payload.currentToolpath;
+        },
     },
 });
 
@@ -97,6 +105,7 @@ export const {
     updateFileContent,
     updateFileProcessing,
     updateFileRenderState,
+    updateCurrentToolpath,
 } = fileInfoSlice.actions;
 
 export default fileInfoSlice.reducer;

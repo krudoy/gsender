@@ -1756,6 +1756,32 @@ export const SettingsMenu: SettingsMenuSection[] = [
         icon: MdOutlineReadMore,
         settings: [
             {
+                label: 'Comment Display',
+                settings: [
+                    {
+                        label: 'Show parentheses comments',
+                        key: 'workspace.commentDisplay.showParenthesesComments',
+                        type: 'boolean',
+                        description:
+                            'Display comments written in parentheses format (like "M0 (Pause for inspection)") in pause and tool change dialogs.',
+                    },
+                    {
+                        label: 'Show toolpath comments',
+                        key: 'workspace.commentDisplay.showToolpathComments',
+                        type: 'boolean',
+                        description:
+                            'Parse and track "(Toolpath: ...)" comments from CAM software like Vectric or Carbide Create.',
+                    },
+                    {
+                        label: 'Show current operation',
+                        key: 'workspace.commentDisplay.showCurrentOperation',
+                        type: 'boolean',
+                        description:
+                            'Display the current toolpath operation name in the File Information panel during job execution.',
+                    },
+                ],
+            },
+            {
                 label: '',
                 settings: [
                     { type: 'eeprom', eID: '$10' },
