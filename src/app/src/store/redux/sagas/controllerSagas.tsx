@@ -440,8 +440,10 @@ export function* initialize(): Generator<any, void, any> {
 
         reduxStore.dispatch(updateSenderStatus({ status }));
 
-        // Update current toolpath based on sent line number
-        const currentLine = status.sent || 0;
+        // Update current toolpath based on received (acknowledged) line number
+        // Using 'received' instead of 'sent' because 'received' tracks 'ok' responses from GRBL,
+        // which for blocking commands like G4 (dwell) only increment after execution completes
+        const currentLine = status.received || 0;
         const fileState = _get(reduxStore.getState(), 'file');
         const toolpathComments: ToolpathComment[] =
             fileState?.toolpathComments || [];
@@ -673,7 +675,7 @@ export function* initialize(): Generator<any, void, any> {
                         post-toolchange code.
                     </p>
                     <p>
-                        Comment: <b>{comment}</b>
+                        <b>{comment}</b>
                     </p>
                 </div>
             ) : (
@@ -725,7 +727,7 @@ export function* initialize(): Generator<any, void, any> {
                     <div>
                         <p>{msg}</p>
                         <p>
-                            Comment: <b>{payload.comment}</b>
+                            <b>{payload.comment}</b>
                         </p>
                     </div>
                 ) : (
@@ -816,7 +818,7 @@ export function* initialize(): Generator<any, void, any> {
                 <div>
                     <p>{msg}</p>
                     <p>
-                        Comment: <b>{comment}</b>
+                        <b>{comment}</b>
                     </p>
                 </div>
             ) : (

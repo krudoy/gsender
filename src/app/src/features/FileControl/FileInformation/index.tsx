@@ -3,6 +3,7 @@ import pubsub from 'pubsub-js';
 
 import { useTypedSelector } from 'app/hooks/useTypedSelector';
 import { Switch } from 'app/components/shadcn/Switch';
+import store from 'app/store';
 
 import Size from './Size';
 import Info from './Info';
@@ -32,8 +33,19 @@ interface Props {
 }
 
 const FileInformation: React.FC<Props> = ({ handleRecentFileUpload }) => {
-    const { name, size, total, path, fileLoaded, fileProcessing } =
+    const { name, size, total, path, fileLoaded, fileProcessing, currentToolpath, toolpathComments } =
         useTypedSelector((state) => state.file);
+
+    // Get showCurrentOperation setting
+    const showCurrentOperation = store.get(
+        'workspace.commentDisplay.showCurrentOperation',
+        true,
+    );
+
+    // Determine if we should show the current operation display
+    const hasToolpathComments = toolpathComments && toolpathComments.length > 0;
+    const shouldShowOperation =
+        showCurrentOperation && hasToolpathComments && currentToolpath;
 
     const [toggleInfo, setToggleInfo] = useState(false);
     const [recentFiles, setRecentFiles] =
@@ -258,6 +270,15 @@ const FileInformation: React.FC<Props> = ({ handleRecentFileUpload }) => {
                 <div className="text-gray-500 text-xs max-w-full flex flex-row">
                     <span className="inline-block text-ellipsis overflow-hidden whitespace-nowrap">
                         {path}
+                    </span>
+                </div>
+            )}
+
+            {shouldShowOperation && (
+                <div className="flex gap-1 mt-1 text-xs">
+                    <span className="font-bold">Operation:</span>
+                    <span className="truncate" title={currentToolpath}>
+                        {currentToolpath}
                     </span>
                 </div>
             )}
